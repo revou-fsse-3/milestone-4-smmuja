@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounts List</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        button {
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        .search-container {
+            margin-top: 20px;
+        }
+        
+        .search-input {
+            padding: 10px;
+            width: 300px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        
+        .search-button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        Hello, {{ response_data['username'] }}
+        <a href="/logout">Logout</a>
+    </div>
+    <h2>Accounts List</h2>
+    <button onclick="openNewAccountForm()">Add New Account</button>
+    <div class="search-container">
+        <input type="text" class="search-input" id="searchInput" placeholder="Search...">
+        <button class="search-button" onclick="search()">Search</button>
+    </div>
+    <hr style="border:none;"/>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>User ID</th>
+                <th>Account Type</th>
+                <th>Account Number</th>
+                <th>Balance</th>
+                <th>Created at</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for account in response_data['accounts'] %}            
+            <tr>
+                <td>{{ account.id }}</td>
+                <td>{{ account.id }}</td>
+                <td>{{ account.account_type }}</td>
+                <td>{{ account.account_number }}</td>
+                <td>{{ account.balance }}</td>
+                <td>{{ account.created_at }}</td>
+
+                <td>
+                    <a href="{{ url_for('account_routes.account_detail', id=account.id) }}">Review</a>
+                    <button onclick="openEditAccountForm()">Edit</button>
+                    <button id="delete_{{ account.id }}" onclick="accountDelete(this)">Delete</button>
+                </td>
+            </tr>
+            {% endfor %}
+            <!-- Add more <tr> elements for additional products -->
+        </tbody>
+    </table>
+
+    <div id="newAccountForm" style="display: none;">
+        <h3 id="formSection">Add New Account</h3>
+        <form id="accountForm">
+            <label for="accountType">Account Type:</label>
+            <select name="accountType" id="accountType">
+                <option value="checking">Checking</option>
+                <option value="Savings">Savings</option>
+            </select><br><br>
+            <!-- <input type="text" id="userName" name="userName"><br><br> -->
+            <label for="acccountNumber">Account Number:</label>
+            <input type="text" id="acccountNumber" name="acccountNumber"><br><br>
+            <label for="balance">Balance:</label>
+            <input type="number" id="balance" name="balancce"><br><br>
+            <button type="button" onclick="submitForm()">Submit</button>
+            <button type="button" onclick="closeNewAccountForm()">Cancel</button>
+        </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script>
+        var form_url = "";
+        var form_method = "";
+        var base_url = "{{ url_for('account_routes.account_list') }}";
+        
+        function openNewAccountForm() {
+            form_method = 'POST';
+            form_url = base_url;
+            document.getElementById("newAccountForm").style.display = "block";
+            document.getElementById("formSection").innerHTML = "Add New Account";
+            document.getElementById("accountForm").reset();
+        }
+
+        function openEditAccountForm(button) {
+            var selected_account_id = button.id.split("_")[1];
+            form_method = 'PUT';
+            form_url = base_url + "/" + selected_account_id;
+
+            var type = $('#accountType'+selected_account_id).html();
+            var balance = $('#balance'+selected_account_id).html();
+            // var pass = $('#password_'+selected_user_id).html();
+
+            $('#accountType').val(account_type);
+            $('#balance').val(balance);
+            // $('#userPassword').val(password);
+
+            document.getElementById("newAccountForm").style.display = "block";
+            document.getElementById("formSection").innerHTML = "Edit Account";
+        }
+
+        function closeNewAccountForm() {
+            document.getElementById("newAccountForm").style.display = "none";
+        }
+
+        function submitForm(){
+            var request_data = {
+                type: $('#accountType').val(),
+                balance: $('#balance').val(),
+                // password: $('#UserPassword'). val()
+            }
+
+            $.ajax({
+                url: form_url,
+                data: request_data,
+                method: form_method
+            }).done(function(response){
+                alert(response.message);
+                location.reload();
+            })
+        }
+
+        function accountDelete(button){
+            var selected_account_id = button.id.split("_")[1];
+            var delete_url = base_url + "/" + selected_account_id
+
+            $.ajax({
+                url: delete_url,
+                method: "DELETE"
+            }).done(function(response){
+                alert(response.message);
+                location.reload();
+            })
+        }
+
+        function search(){
+            window.location = base_url + '?query=' + $('#searchInput').val();
+        }
+    </script>
+</body>
+</html>

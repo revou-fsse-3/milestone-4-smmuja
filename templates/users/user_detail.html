@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Detail</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        button {
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        .search-container {
+            margin-top: 20px;
+        }
+        
+        .search-input {
+            padding: 10px;
+            width: 300px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        
+        .search-button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        Hello, {{ response_data['username'] }}
+        <a href="/logout">Logout</a>
+    </div>
+
+    <br>
+    <h2>User Detail</h2>
+
+    <p>User ID: {{ response_data['user'].id }}</p>
+
+    <p>User Name: {{ response_data['user'].username }}</p>
+
+    <p>User Email: {{ response_data['user'].email}}</p>
+
+    <p>Member since: {{ response_data['user'].created_at}}</p>
+
+    <br>
+    <br>
+
+    <h2>Account</h2>
+
+    <p>User ID: {{ response_data['user'].id }}</p>
+
+    <p>User Name: {{ response_data['user'].username }}</p>
+
+    <p>User Email: {{ response_data['user'].email}}</p>
+
+    <p>Member since: {{ response_data['user'].created_at}}</p>
+
+    <br>
+
+
+    <button onclick="openNewUserForm()">Add New User</button>
+    <div class="search-container">
+        <input type="text" class="search-input" id="searchInput" placeholder="Search...">
+        <button class="search-button" onclick="search()">Search</button>
+    </div>
+    <hr style="border:none;"/>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Member since</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- {% for user in response_data['users'] %}             -->
+            <tr>
+                <!-- <td>{{ response_data['id'] }}</td>
+                <td>{{ response_data['username'] }}</td>
+                <td>{{ response_data['email'] }}</td>
+                <td>{{ response_data['created_at'] }}</td> -->
+
+                <!-- <td>Name</td>
+                <td>Number</td>
+                <td>Emai</td>
+                <td>DDD</td> -->
+
+                <td>{{ response_data['user'].id }}</td>
+                <td>{{ response_data['user'].username }}</td>
+                <td>{{ response_data['user'].email }}</td>
+                <td>{{ response_data['user'].created_at }}</td>
+                <td>
+                    <button>Review</button>
+                    <button onclick="openEditUserForm()">Edit</button>
+                    <!-- <button id="delete_{{ user.id }}" onclick="userDelete(this)">Delete</button> -->
+                </td>
+            </tr>
+            <!-- {% endfor %} -->
+            <!-- Add more <tr> elements for additional products -->
+        </tbody>
+    </table>
+
+    <div id="newUserForm" style="display: none;">
+        <h3 id="formSection">Add New User</h3>
+        <form id="userForm">
+            <label for="userName">User Name:</label>
+            <input type="text" id="userName" name="userName"><br><br>
+            <label for="userEmail">Email:</label>
+            <input type="text" id="userEmail" name="userEmail"><br><br>
+            <button type="button" onclick="submitForm()">Submit</button>
+            <button type="button" onclick="closeNewUserForm()">Cancel</button>
+        </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script>
+        var form_url = "";
+        var form_method = "";
+        var base_url = "{{ url_for('users_routes.list_users') }}";
+        
+        function openNewUserForm() {
+            form_method = 'POST';
+            form_url = base_url;
+            document.getElementById("newUserForm").style.display = "block";
+            document.getElementById("formSection").innerHTML = "Add New User";
+            document.getElementById("userForm").reset();
+        }
+
+        function openEditUserForm(button) {
+            var selected_user_id = button.id.split("_")[1];
+            form_method = 'PUT';
+            form_url = base_url + "/" + selected_userid;
+
+            var name = $('#username'+selected_user_id).html();
+            var email = $('#email'+selected_user_id).html();
+            var pass = $('#password_'+selected_user_id).html();
+
+            $('#userUsername').val(username);
+            $('#userEmail').val(email);
+            $('#userPassword').val(password);
+
+            document.getElementById("newUserForm").style.display = "block";
+            document.getElementById("formSection").innerHTML = "Edit User";
+        }
+
+        function closeNewUserForm() {
+            document.getElementById("newUserForm").style.display = "none";
+        }
+
+        function submitForm(){
+            var request_data = {
+                name: $('#userNAme').val(),
+                email: $('#UserEmail').val(),
+                password: $('#UserPassword'). val()
+            }
+
+            $.ajax({
+                url: form_url,
+                data: request_data,
+                method: form_method
+            }).done(function(response){
+                alert(response.message);
+                location.reload();
+            })
+        }
+
+        function userDelete(button){
+            var selected_user_id = button.id.split("_")[1];
+            var delete_url = base_url + "/" + selected_user_id
+
+            $.ajax({
+                url: delete_url,
+                method: "DELETE"
+            }).done(function(response){
+                alert(response.message);
+                location.reload();
+            })
+        }
+
+        function search(){
+            window.location = base_url + '?query=' + $('#searchInput').val();
+        }
+    </script>
+</body>
+</html>

@@ -1,1 +1,20 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-24ddc0f5d75046c5622901739e7c5dd533143b0c8e959d652212380cedb1ea36.svg)](https://classroom.github.com/a/TId9PLV9)
+# Connecting Flask Application to MySQL Database  
+
+
+#### API Endpoints  
+- http://127.0.0.1:5000/register = Register/create user
+- http://127.0.0.1:5000/login = Login/Authenticate user
+- http://127.0.0.1:5000/users = Fetch all user list
+- http://127.0.0.1:5000/accounts = Fetch all account list
+- 
+
+
+
+
+## Run on local environment  
+
+
+```bash
+flask --app index run --debug
+
+```
